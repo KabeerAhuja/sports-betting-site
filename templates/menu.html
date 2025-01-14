@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Menu</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Menu Button -->
+        <button id="menu-button" class="btn btn-primary">Show Sports Menu</button>
+        
+        <!-- Sports List -->
+        <ul id="sports-list" class="list-group mt-3"></ul>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+    <script>
+        document.getElementById('menu-button').addEventListener('click', () => {
+            // Fetch sports menu from the Flask API
+            fetch('/menu')
+                .then(response => response.json())
+                .then(sports => {
+                    const sportsList = document.getElementById('sports-list');
+                    sportsList.innerHTML = ''; // Clear the previous list
+
+                    // Populate the sports list dynamically
+                    sports.forEach(sport => {
+                        const li = document.createElement('li');
+                        li.textContent = sport;
+                        li.className = 'list-group-item';
+                        li.addEventListener('click', () => increasePopularity(sport)); // Add click event
+                        sportsList.appendChild(li);
+                    });
+                });
+        });
+
+        function increasePopularity(sport) {
+            // Send POST request to increase popularity
+            fetch('/increase_popularity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sport }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(`${sport} popularity increased!`);
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
